@@ -1,95 +1,135 @@
-import Image from 'next/image'
-import styles from './page.module.css'
+"use client";
 
-export default function Home() {
+import { useCallback, useRef, useState } from "react";
+import { styled } from "styled-components";
+import Image from "next/image";
+import Webcam from "react-webcam";
+import Loading from "../components/Loading";
+import { ShowImg } from "../apis";
+import { useMutation } from "react-query";
+import { useRouter } from "next/navigation";
+
+const Home = () => {
+  const [imageSrc, setImageSrc] = useState(null);
+  const webcamRef = useRef(null);
+  const router = useRouter();
+
+  const { mutate, isLoading } = useMutation({
+    mutationKey: ["LEGO"],
+    mutationFn: () => ShowImg(),
+    onSuccess: () => {
+      router.push("/result");
+    },
+  });
+
+  const capture = useCallback(() => {
+    const imageSrc = webcamRef.current.getScreenshot();
+    setImageSrc(imageSrc);
+    // mutate.mutate();
+  }, [webcamRef]);
+
+  console.log("***", imageSrc); // img src
+
   return (
-    <main className={styles.main}>
-      <div className={styles.description}>
-        <p>
-          Get started by editing&nbsp;
-          <code className={styles.code}>src/app/page.js</code>
-        </p>
-        <div>
-          <a
-            href="https://vercel.com?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            By{' '}
-            <Image
-              src="/vercel.svg"
-              alt="Vercel Logo"
-              className={styles.vercelLogo}
-              width={100}
-              height={24}
-              priority
+    <Container>
+      <MipiWrapper>
+        <Header>
+          <Image src="/images/MIPI.svg" alt="home" width={230} height={230} />
+        </Header>
+        <Nav>미니 피규어를 중앙에 맞춰주세요.</Nav>
+        <WebcamWrapper>
+          {isLoading ? (
+            <LoadingOverlay>
+              <Loading />
+            </LoadingOverlay>
+          ) : (
+            <Webcam
+              ref={webcamRef}
+              style={{
+                width: "85%",
+                borderRadius: "0.8rem",
+              }}
             />
-          </a>
-        </div>
-      </div>
+          )}
+        </WebcamWrapper>
+        <SearchWrapper>
+          <SearchButton onClick={capture}>
+            <Image src="/images/Vector.svg" alt="home" width={26} height={26} />
+          </SearchButton>
+        </SearchWrapper>
+      </MipiWrapper>
+    </Container>
+  );
+};
 
-      <div className={styles.center}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js Logo"
-          width={180}
-          height={37}
-          priority
-        />
-      </div>
+export default Home;
 
-      <div className={styles.grid}>
-        <a
-          href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Docs <span>-&gt;</span>
-          </h2>
-          <p>Find in-depth information about Next.js features and API.</p>
-        </a>
+const Container = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+`;
 
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Learn <span>-&gt;</span>
-          </h2>
-          <p>Learn about Next.js in an interactive course with&nbsp;quizzes!</p>
-        </a>
+const MipiWrapper = styled.div`
+  width: 550px;
+  background-color: #fff9ee;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+`;
 
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Templates <span>-&gt;</span>
-          </h2>
-          <p>Explore starter templates for Next.js.</p>
-        </a>
+const Header = styled.div`
+  width: 100%;
+  height: 25%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
 
-        <a
-          href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          className={styles.card}
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <h2>
-            Deploy <span>-&gt;</span>
-          </h2>
-          <p>
-            Instantly deploy your Next.js site to a shareable URL with Vercel.
-          </p>
-        </a>
-      </div>
-    </main>
-  )
-}
+const Nav = styled.div`
+  width: 100%;
+  height: 2%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const WebcamWrapper = styled.div`
+  width: 100%;
+  height: 75%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
+
+const SearchWrapper = styled.div`
+  width: 100%;
+  height: 15%;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  margin-bottom: 1rem;
+`;
+
+const SearchButton = styled.div`
+  width: 72px;
+  height: 72px;
+  background-color: #ec0707;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+`;
+
+const LoadingOverlay = styled.div`
+  width: 85%;
+  height: 70%;
+  border-radius: 0.8rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #a1a1a1;
+`;
