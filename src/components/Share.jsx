@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import { LuShare } from "react-icons/lu";
 
 const Share = () => {
   useEffect(() => {
@@ -19,10 +20,10 @@ const Share = () => {
     Kakao.Share.sendDefault({
       objectType: "feed",
       content: {
-        title: "오늘의 디저트",
-        description: "아메리카노, 빵, 케익",
+        title: "당근당근",
+        description: "당근당근",
         imageUrl:
-          "https://mud-kage.kakao.com/dn/NTmhS/btqfEUdFAUf/FjKzkZsnoeE4o19klTOVI1/openlink_640x640s.jpg",
+          "https://src.hidoc.co.kr/image/lib/2021/9/3/1630652987056_0.jpg",
         link: {
           mobileWebUrl: window.location.origin,
         },
@@ -37,7 +38,7 @@ const Share = () => {
       ],
     });
   };
-  return <div onClick={shareKakao}>카카오톡</div>;
+  return <LuShare onClick={shareKakao} />;
 };
 
 export default Share;

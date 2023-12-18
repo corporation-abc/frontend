@@ -2,7 +2,6 @@
 
 import React from "react";
 import { styled } from "styled-components";
-import { LuShare } from "react-icons/lu";
 import { AiOutlineHome } from "react-icons/ai";
 import { useRouter } from "next/navigation";
 import Share from "../../components/Share";
@@ -26,7 +25,6 @@ const Page = () => {
         <Footer>
           <FooterContents>
             <Btn>
-              {/* <LuShare /> */}
               <Share />
             </Btn>
             <Btn>
