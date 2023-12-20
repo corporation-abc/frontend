@@ -72,6 +72,7 @@ const Header = styled.div`
   align-items: center;
   flex-direction: column;
   gap: 1rem;
+  margin-top: 1rem;
 `;
 
 const Body = styled.div`
