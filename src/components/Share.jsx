@@ -6,7 +6,7 @@ import { legoResult } from '../store/result';
 const Share = () => {
   const result = useRecoilValue(legoResult);
 
-  console.log(result.url);
+  console.log('result.url', result.url);
   useEffect(() => {
     const script = document.createElement('script');
     script.src = 'https://t1.kakaocdn.net/kakao_js_sdk/2.6.0/kakao.min.js';
@@ -29,6 +29,7 @@ const Share = () => {
         description: result.class_name,
         imageUrl: result.image,
         link: {
+          webUrl: result.url,
           mobileWebUrl: result.url,
         },
       },
@@ -36,6 +37,7 @@ const Share = () => {
         {
           title: '레고 보러가기',
           link: {
+            webUrl: result.url,
             mobileWebUrl: result.url,
           },
         },
