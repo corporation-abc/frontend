@@ -1,40 +1,83 @@
-"use client";
+'use client';
 
-import { useCallback, useRef, useState } from "react";
-import { styled } from "styled-components";
-import Image from "next/image";
-import Webcam from "react-webcam";
-import Loading from "../components/Loading";
-import { ShowImg } from "../apis";
-import { useMutation } from "react-query";
-import { useRouter } from "next/navigation";
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { styled } from 'styled-components';
+import Image from 'next/image';
+import Loading from '../components/Loading';
+import instance from '../apis/httpClinet';
 
 const Home = () => {
-  const [imageSrc, setImageSrc] = useState(null);
-  const webcamRef = useRef(null);
-  const router = useRouter();
+  const [isLoading, setIsLoading] = useState(false);
+  const [hasPhoto, setHasPhoto] = useState(false);
+  const [photoDataURL, setPhotoDataURL] = useState(null);
+  const videoRef = useRef(null);
 
-  const { mutate, isLoading } = useMutation({
-    mutationKey: ["LEGO"],
-    mutationFn: () => ShowImg(),
-    onSuccess: () => {
-      router.push("/result");
-    },
-  });
+  useEffect(() => {
+    const initWebcam = async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: true,
+        });
+        console.log('Stream:', stream);
+        videoRef.current.srcObject = stream;
+      } catch (error) {
+        console.error('Error accessing webcam:', error);
+      }
+    };
 
-  const capture = useCallback(() => {
-    const imageSrc = webcamRef.current.getScreenshot();
-    setImageSrc(imageSrc);
-    // mutate.mutate();
-  }, [webcamRef]);
+    initWebcam();
 
-  console.log("***", imageSrc); // img src
+    return () => {
+      const stream = videoRef.current.srcObject;
+      if (stream) {
+        const tracks = stream.getTracks();
+        tracks.forEach((track) => track.stop());
+      }
+    };
+  }, [videoRef]);
+
+  const takePhoto = useCallback(() => {
+    setIsLoading(true);
+
+    const video = videoRef.current;
+    const canvas = document.createElement('canvas');
+    const context = canvas.getContext('2d');
+
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
+
+    context.scale(-1, 1);
+    context.translate(-canvas.width, 0);
+
+    context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+    canvas.toBlob(async (blob) => {
+      const formData = new FormData();
+      formData.append('file', blob, 'captured-photo.jpg');
+
+      try {
+        const response = await instance
+          .post('/', formData, {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+            },
+          })
+          .then((response) => {
+            console.log('Success:', response.data);
+          });
+      } catch (error) {
+        console.error('Error uploading photo:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    }, 'image/jpeg');
+  }, [setIsLoading, setHasPhoto, setPhotoDataURL]);
 
   return (
     <Container>
       <MipiWrapper>
         <Header>
-          <Image src="/images/MIPI.svg" alt="home" width={230} height={230} />
+          <Image src='/images/MIPI.svg' alt='home' width={230} height={230} />
         </Header>
         <Nav>미니 피규어를 중앙에 맞춰주세요.</Nav>
         <WebcamWrapper>
@@ -43,18 +86,12 @@ const Home = () => {
               <Loading />
             </LoadingOverlay>
           ) : (
-            <Webcam
-              ref={webcamRef}
-              style={{
-                width: "85%",
-                borderRadius: "0.8rem",
-              }}
-            />
+            <Video ref={videoRef} autoPlay playsInline></Video>
           )}
         </WebcamWrapper>
         <SearchWrapper>
-          <SearchButton onClick={capture}>
-            <Image src="/images/Vector.svg" alt="home" width={26} height={26} />
+          <SearchButton onClick={takePhoto}>
+            <Image src='/images/Vector.svg' alt='home' width={26} height={26} />
           </SearchButton>
         </SearchWrapper>
       </MipiWrapper>
@@ -132,4 +169,9 @@ const LoadingOverlay = styled.div`
   align-items: center;
   justify-content: center;
   background-color: #a1a1a1;
+`;
+
+const Video = styled.video`
+  width: 85%;
+  height: 85%;
 `;

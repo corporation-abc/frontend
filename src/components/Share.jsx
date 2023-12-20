@@ -20,10 +20,10 @@ const Share = () => {
     Kakao.Share.sendDefault({
       objectType: "feed",
       content: {
-        title: "당근당근",
-        description: "당근당근",
+        title: "웅기모띵",
+        description: "딩가딩가딩",
         imageUrl:
-          "https://src.hidoc.co.kr/image/lib/2021/9/3/1630652987056_0.jpg",
+          "https://steamuserimages-a.akamaihd.net/ugc/94982268567699578/6150E77455C3B3580DA622A61DE078AEA73EE82A/?imw=637&imh=358&ima=fit&impolicy=Letterbox&imcolor=%23000000&letterbox=trueg",
         link: {
           mobileWebUrl: window.location.origin,
         },
