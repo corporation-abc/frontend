@@ -1,27 +1,30 @@
-"use client";
+'use client';
 
-import React from "react";
-import { styled } from "styled-components";
-import { AiOutlineHome } from "react-icons/ai";
-import { useRouter } from "next/navigation";
-import Share from "../../components/Share";
+import React from 'react';
+import { styled } from 'styled-components';
+import { AiOutlineHome } from 'react-icons/ai';
+import Share from '../../components/Share';
+import { useRecoilValue } from 'recoil';
+import { legoResult } from '../../store/result';
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 
-const Page = () => {
+const Result = () => {
+  const result = useRecoilValue(legoResult);
   const router = useRouter();
+  console.log('result', result.image);
 
   return (
     <Container>
       <MipiWrapper>
         <Header>
-          <Title>Brick Suit Guy</Title>
-          <SubTitle>No. col313</SubTitle>
+          <Title>{result.name}</Title>
+          <SubTitle>{result.class_name}</SubTitle>
         </Header>
         <Body>
-          <ImgWrapper />
+          <ImgWrapper imageUrl={result.image} />
         </Body>
-        <DetailWrapper>
-          <DetailImg></DetailImg>
-        </DetailWrapper>
+        <DetailWrapper></DetailWrapper>
         <Footer>
           <FooterContents>
             <Btn>
@@ -30,11 +33,13 @@ const Page = () => {
             <Btn>
               <AiOutlineHome
                 onClick={() => {
-                  router.push("/");
+                  router.push('/');
                 }}
               />
             </Btn>
-            <More>more</More>
+            <More>
+              <Link href={result.url}>more</Link>
+            </More>
           </FooterContents>
         </Footer>
       </MipiWrapper>
@@ -42,7 +47,7 @@ const Page = () => {
   );
 };
 
-export default Page;
+export default Result;
 
 const Container = styled.div`
   display: flex;
@@ -80,10 +85,10 @@ const Body = styled.div`
 const Title = styled.div`
   color: #000;
   text-align: center;
-  font-size: 26px;
+  font-size: 25px;
   font-style: normal;
   font-weight: 800;
-  line-height: 21px;
+  line-height: 28px;
 `;
 
 const SubTitle = styled.div`
@@ -94,14 +99,14 @@ const SubTitle = styled.div`
   font-weight: 700;
   line-height: 100%;
 `;
-
 const ImgWrapper = styled.div`
   width: 23rem;
   height: 23rem;
   flex-shrink: 0;
   border-radius: 16px;
   border: 2px solid #dcdcdc;
-  background: url(<path-to-image>), white 50% / cover no-repeat;
+  background: url(${(props) => props.imageUrl}) center / contain no-repeat;
+  background-color: white;
 `;
 
 const DetailWrapper = styled.div`

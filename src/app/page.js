@@ -5,12 +5,17 @@ import { styled } from 'styled-components';
 import Image from 'next/image';
 import Loading from '../components/Loading';
 import instance from '../apis/httpClinet';
+import { useRouter } from 'next/navigation';
+import { useSetRecoilState } from 'recoil';
+import { legoResult } from '../store/result';
 
 const Home = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [hasPhoto, setHasPhoto] = useState(false);
   const [photoDataURL, setPhotoDataURL] = useState(null);
+  const router = useRouter();
   const videoRef = useRef(null);
+  const setResult = useSetRecoilState(legoResult);
 
   useEffect(() => {
     const initWebcam = async () => {
@@ -19,7 +24,10 @@ const Home = () => {
           video: true,
         });
         console.log('Stream:', stream);
-        videoRef.current.srcObject = stream;
+
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+        }
       } catch (error) {
         console.error('Error accessing webcam:', error);
       }
@@ -28,7 +36,7 @@ const Home = () => {
     initWebcam();
 
     return () => {
-      const stream = videoRef.current.srcObject;
+      const stream = videoRef.current ? videoRef.current.srcObject : null;
       if (stream) {
         const tracks = stream.getTracks();
         tracks.forEach((track) => track.stop());
@@ -64,6 +72,14 @@ const Home = () => {
           })
           .then((response) => {
             console.log('Success:', response.data);
+            router.push('/result');
+            setResult({
+              class_name: response.data.class_name,
+              confidence: response.data.confidence,
+              name: response.data.name,
+              url: response.data.url,
+              image: response.data.image,
+            });
           });
       } catch (error) {
         console.error('Error uploading photo:', error);
